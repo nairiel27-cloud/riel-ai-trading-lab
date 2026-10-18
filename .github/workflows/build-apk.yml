@@ -1,0 +1,39 @@
+
+name: Build RIEL AI Trading Lab APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "RIEL_AI_TRADING_LAB_Android_Source.zip"
+      - ".github/workflows/build-apk.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Android source
+        run: |
+          unzip -o RIEL_AI_TRADING_LAB_Android_Source.zip -d source
+          find source -name gradlew -type f
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build APK
+        run: |
+          cd source/riel_ai_android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: RIEL-AI-TRADING-LAB-APK
+          path: source/riel_ai_android/app/build/outputs/apk/debug/*.apk
